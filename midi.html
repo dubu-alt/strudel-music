@@ -100,33 +100,56 @@
       #dropZone .desc { color: #8a8a8a; font-size: 0.9rem; }
       #fileInput { display: none; }
 
-      /* 옵션 */
-      .options {
+      /* 옵션 패널 */
+      .optionsPanel {
         width: 100%;
         max-width: 900px;
-        display: flex;
-        gap: 1.5rem;
-        align-items: center;
+        border: 1px solid #2a2a2a;
+        border-radius: 4px;
+        background: #111;
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
-        flex-wrap: wrap;
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
       }
-      .options label {
-        color: #8a8a8a;
+      .optGroup { display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; align-items: center; }
+      .optTitle {
+        width: 100%;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: #666;
+        text-transform: uppercase;
+      }
+      .optionsPanel label {
+        color: #b5b5b5;
         font-size: 0.9rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.55rem;
+        cursor: pointer;
       }
-      .options input[type="number"] {
-        width: 5rem;
-        background: #141414;
+      .optionsPanel label.inline { gap: 0.5rem; }
+      .optionsPanel input[type="number"], .optionsPanel input[type="text"] {
+        width: 5.5rem;
+        background: #0d0d0d;
         border: 1px solid #2a2a2a;
         border-radius: 2px;
         color: #f5f5f5;
-        padding: 0.5rem 0.7rem;
+        padding: 0.45rem 0.65rem;
         font-family: inherit;
+        font-size: 0.9rem;
+      }
+      .optionsPanel input[type="text"] { width: 10rem; font-family: "SF Mono", Menlo, monospace; }
+      .optionsPanel input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        accent-color: #f5f5f5;
+        cursor: pointer;
       }
       #convertBtn {
+        align-self: flex-start;
         font-family: inherit;
         font-size: 0.95rem;
         font-weight: 600;
@@ -223,10 +246,55 @@
     <input type="file" id="fileInput" accept=".mid,.midi" />
 
     <!-- 옵션 + 변환 버튼 -->
-    <div class="options">
-      <label>사이클당 박자 수
-        <input type="number" id="beatsPerCycle" value="4" min="1" max="16" />
-      </label>
+    <div class="optionsPanel">
+      <div class="optGroup">
+        <div class="optTitle">타이밍</div>
+        <label title="원곡의 박자당 사이클 길이. 4면 4/4박자">
+          사이클당 박자 수
+          <input type="number" id="beatsPerCycle" value="4" min="1" max="16" />
+        </label>
+        <label title="변환할 마디 수 제한. 0이면 전체 변환">
+          마디 제한
+          <input type="number" id="barLimit" value="0" min="0" max="999" />
+        </label>
+        <label title="원곡 BPM. 생성 코드의 setcpm에 반영됩니다">
+          원곡 BPM
+          <input type="number" id="bpm" value="120" min="20" max="300" />
+        </label>
+      </div>
+
+      <div class="optGroup">
+        <div class="optTitle">사운드</div>
+        <label title="MIDI 프로그램 번호에 맞는 General MIDI 악기로 지정합니다">
+          <input type="checkbox" id="useGM" checked />
+          MIDI 악기에 맞춰 사운드 지정
+        </label>
+        <label title="모든 멜로디 트랙에 같은 사운드를 사용합니다">
+          <input type="checkbox" id="singleSound" />
+          단일 사운드로 통일
+        </label>
+        <label class="inline" id="soundNameWrap" style="display:none">
+          사운드 이름
+          <input type="text" id="soundName" value="gm_epiano1" />
+        </label>
+      </div>
+
+      <div class="optGroup">
+        <div class="optTitle">출력 형태</div>
+        <label title="코드를 한 줄로 압축합니다. 긴 곡에 유용">
+          <input type="checkbox" id="singleLine" />
+          한 줄로 압축
+        </label>
+        <label title="쉼 없는 노트는 짧게, 긴 노트는 늘어나게 표시">
+          <input type="checkbox" id="useDurations" checked />
+          노트 길이 반영 (@ 표기)
+        </label>
+        <label title="벨로시티(세기)를 gain 값으로 반영">
+          <input type="checkbox" id="useVelocity" />
+          벨로시티 반영 (gain)
+        </label>
+      </div>
+
       <button id="convertBtn" disabled>변환하기</button>
     </div>
 
