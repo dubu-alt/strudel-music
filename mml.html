@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MP3 변환 도구 - Strudel Music</title>
+    <title>MML 변환 도구 - Strudel Music</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
@@ -31,7 +31,7 @@
         color: #f5f5f5;
       }
       .brand span { color: #8a8a8a; font-weight: 400; }
-      nav { display: flex; gap: 0.5rem; }
+      nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
       .navBtn {
         font-family: inherit;
         font-size: 0.88rem;
@@ -76,54 +76,7 @@
         width: 100%;
         max-width: 900px;
       }
-      /* 업로드 영역 */
-      #dropZone {
-        width: 100%;
-        max-width: 900px;
-        border: 1px dashed #3a3a3a;
-        border-radius: 4px;
-        padding: 4rem 2rem;
-        text-align: center;
-        cursor: pointer;
-        transition: border-color 0.2s, background 0.2s;
-        margin-bottom: 1rem;
-      }
-      #dropZone:hover, #dropZone.dragover {
-        border-color: #8a8a8a;
-        background: #141414;
-      }
-      #dropZone .icon { font-size: 2rem; margin-bottom: 0.8rem; }
-      #dropZone .main { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; }
-      #dropZone .desc { color: #8a8a8a; font-size: 0.9rem; }
-      #fileInput { display: none; }
-
-      /* 진행 상태 */
-      #progressWrap {
-        width: 100%;
-        max-width: 900px;
-        display: none;
-        margin-bottom: 1.5rem;
-      }
-      #progressLabel {
-        color: #8a8a8a;
-        font-size: 0.9rem;
-        margin-bottom: 0.6rem;
-      }
-      #progressBarOuter {
-        height: 3px;
-        background: #222;
-        border-radius: 2px;
-        overflow: hidden;
-      }
-      #progressBar {
-        height: 100%;
-        width: 0%;
-        background: #f5f5f5;
-        transition: width 0.2s ease;
-      }
-
-      /* 옵션 패널 */
-      .optionsPanel {
+      .panel {
         width: 100%;
         max-width: 900px;
         border: 1px solid #2a2a2a;
@@ -133,7 +86,7 @@
         margin-bottom: 1.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.4rem;
+        gap: 1.2rem;
       }
       .optGroup { display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; align-items: center; }
       .optTitle {
@@ -144,7 +97,7 @@
         color: #666;
         text-transform: uppercase;
       }
-      .optionsPanel label {
+      label {
         color: #b5b5b5;
         font-size: 0.9rem;
         display: flex;
@@ -152,8 +105,7 @@
         gap: 0.55rem;
         cursor: pointer;
       }
-      .optionsPanel label.inline { gap: 0.5rem; }
-      .optionsPanel input[type="number"] {
+      input[type="number"] {
         width: 5.5rem;
         background: #0d0d0d;
         border: 1px solid #2a2a2a;
@@ -163,13 +115,50 @@
         font-family: inherit;
         font-size: 0.9rem;
       }
-      .optionsPanel input[type="checkbox"] {
+      input[type="checkbox"] {
         width: 1rem;
         height: 1rem;
         accent-color: #f5f5f5;
         cursor: pointer;
       }
-      #convertBtn {
+      select {
+        background: #0d0d0d;
+        border: 1px solid #2a2a2a;
+        border-radius: 2px;
+        color: #f5f5f5;
+        padding: 0.45rem 0.65rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+      }
+      .trackSection { display: flex; flex-direction: column; gap: 0.8rem; }
+      .trackHeader {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .trackHeader .name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #c9c9c9;
+        min-width: 5rem;
+      }
+      textarea.mmlInput {
+        width: 100%;
+        min-height: 7rem;
+        background: #0d0d0d;
+        border: 1px solid #2a2a2a;
+        border-radius: 2px;
+        resize: vertical;
+        color: #c9e3c9;
+        font-family: "SF Mono", Menlo, monospace;
+        font-size: 0.78rem;
+        line-height: 1.6;
+        padding: 0.9rem;
+        outline: none;
+      }
+      textarea.mmlInput:focus { border-color: #555; }
+      button.primary {
         align-self: flex-start;
         font-family: inherit;
         font-size: 0.95rem;
@@ -182,9 +171,7 @@
         color: #0d0d0d;
         transition: opacity 0.15s;
       }
-      #convertBtn:hover { opacity: 0.85; }
-      #convertBtn:disabled { opacity: 0.35; cursor: not-allowed; }
-
+      button.primary:hover { opacity: 0.85; }
       /* 결과 */
       #resultWrap {
         width: 100%;
@@ -206,7 +193,7 @@
       }
       #resultCode {
         width: 100%;
-        height: 45vh;
+        height: 50vh;
         background: transparent;
         border: none;
         resize: none;
@@ -249,71 +236,65 @@
   </head>
   <body>
     <header>
-      <div class="brand">STRUDEL <span>MUSIC — MP3 변환</span></div>
+      <div class="brand">STRUDEL <span>MUSIC — MML 변환</span></div>
       <nav>
         <a href="./index.html" class="navBtn">플레이어</a>
         <a href="./midi.html" class="navBtn">MIDI 변환</a>
-        <a href="./mp3.html" class="navBtn active">MP3 변환</a>
-        <a href="./mml.html" class="navBtn">MML 변환</a>
+        <a href="./mp3.html" class="navBtn">MP3 변환</a>
+        <a href="./mml.html" class="navBtn active">MML 변환</a>
       </nav>
     </header>
 
-    <h1>MP3 파일을<br />Strudel 코드로 변환합니다.</h1>
+    <h1>MML 악보를<br />Strudel 코드로 변환합니다.</h1>
     <p class="sub">
-      오디오 파일을 올리면 BPM을 자동으로 분석하고, 공식 문서의
-      <code style="color:#c9c9c9">samples()</code> 커스텀 샘플 로딩 방식으로 재생 코드를 만들어줍니다.<br />
+      MML(Music Macro Language) 텍스트를 트랙별로 붙여넣으면 노트·화음을 분석해
+      Strudel 패턴 코드로 바꿔줍니다.<br />
       생성된 코드를 복사해서 플레이어 에디터에 붙여넣으면 바로 연주됩니다.
     </p>
 
-    <!-- 업로드 -->
-    <div id="dropZone">
-      <div class="icon">🎧</div>
-      <div class="main">오디오 파일을 끌어다 놓거나 클릭해서 선택</div>
-      <div class="desc">.mp3 / .wav / .ogg / .m4a 지원 · 파일은 브라우저에서만 처리됩니다 (업로드 없음)</div>
-    </div>
-    <input type="file" id="fileInput" accept=".mp3,.wav,.ogg,.m4a,audio/*" />
-
-    <!-- 진행 상태 -->
-    <div id="progressWrap">
-      <p id="progressLabel">분석 중…</p>
-      <div id="progressBarOuter"><div id="progressBar"></div></div>
-    </div>
-
-    <!-- 옵션 + 변환 버튼 -->
-    <div class="optionsPanel">
+    <!-- 옵션 -->
+    <div class="panel">
       <div class="optGroup">
-        <div class="optTitle">타이밍</div>
-        <label title="자동 감지된 BPM 대신 직접 지정합니다">
-          <input type="checkbox" id="manualBpm" />
-          BPM 직접 입력
-        </label>
-        <label class="inline" id="bpmWrap" style="display:none">
+        <div class="optTitle">설정</div>
+        <label title="원곡 BPM">
           BPM
-          <input type="number" id="bpm" value="120" min="20" max="300" />
+          <input type="number" id="bpm" value="135" min="20" max="300" />
         </label>
-        <label title="변환할 길이 제한(초). 0이면 전체 변환">
-          길이 제한 (초)
-          <input type="number" id="durationLimit" value="0" min="0" max="600" />
+        <label title="기본 음 길이 (4 = 4분음표)">
+          기본 길이 (L)
+          <select id="defaultLen">
+            <option value="1">1 온음표</option>
+            <option value="2">2 2분음표</option>
+            <option value="4" selected>4 4분음표</option>
+            <option value="8">8 8분음표</option>
+            <option value="16">16 16분음표</option>
+          </select>
         </label>
-      </div>
-
-      <div class="optGroup">
-        <div class="optTitle">재생 스타일</div>
-        <label title="원본을 그대로 반복 재생합니다 (loopAt)">
-          <input type="checkbox" id="useLoop" checked />
-          원본 그대로 루프 재생
+        <label title="멜로디 사운드">
+          멜로디 사운드
+          <input type="text" id="melodySound" value="sawtooth" style="width:8rem" />
         </label>
-        <label title="샘플을 잘라서 리듬 패턴으로 재조합합니다 (chop/slice)">
-          <input type="checkbox" id="useChop" />
-          잘라서 리듬 패턴 만들기 (chop)
-        </label>
-        <label title="드럼/신스 레이어를 함께 추가합니다">
-          <input type="checkbox" id="addDrums" />
-          드럼 비트 레이어 추가
+        <label title="화음 사운드">
+          화음 사운드
+          <input type="text" id="chordSound" value="triangle" style="width:8rem" />
         </label>
       </div>
+    </div>
 
-      <button id="convertBtn" disabled>코드 생성하기</button>
+    <!-- 트랙 입력 -->
+    <div class="panel" id="tracksPanel">
+      <div class="trackSection" data-track="0">
+        <div class="trackHeader">
+          <span class="name">트랙 1 (멜로디)</span>
+          <label><input type="checkbox" class="useTrack" checked /> 사용</label>
+          <label>옥타브 이동
+            <input type="number" class="octShift" value="0" min="-4" max="4" style="width:4rem" />
+          </label>
+        </div>
+        <textarea class="mmlInput" spellcheck="false" placeholder="MML 텍스트를 붙여넣으세요"></textarea>
+      </div>
+      <button id="addTrackBtn" class="primary" style="background:#222;color:#c9c9c9;border:1px solid #3a3a3a">+ 트랙 추가</button>
+      <button id="convertBtn" class="primary">변환하기</button>
     </div>
 
     <!-- 결과 -->
@@ -329,12 +310,11 @@
     </div>
 
     <footer>
-      오디오 분석은 브라우저에서 직접 수행됩니다 · 코드 생성 규칙은
-      <a href="https://strudel.cc/workshop/first-sounds/" target="_blank" rel="noopener" style="color:#8a8a8a">Strudel 공식 워크숍</a>과
-      <a href="https://strudel.cc/learn/samples/" target="_blank" rel="noopener" style="color:#8a8a8a">Samples 문서</a>를 따릅니다.
+      MML 파싱은 브라우저에서 직접 수행됩니다 · 노트/쉼/옥타브/길이/화음(&) 지원 ·
+      코드 규칙은 <a href="https://strudel.cc/workshop/first-notes/" target="_blank" rel="noopener" style="color:#8a8a8a">Strudel 공식 문서</a>를 따릅니다.
     </footer>
 
-    <script type="module" src="./src/mp3-convert.js"></script>
+    <script type="module" src="./src/mml-convert.js"></script>
     <script>
       // 내비게이션 버튼 클릭 시 페이드아웃 후 이동
       document.querySelectorAll('.navBtn').forEach((a) => {
