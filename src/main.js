@@ -22,6 +22,20 @@ function setupControls() {
   });
 }
 
+// MP3 변환 페이지에서 전달된 코드가 있으면 에디터에 반영
+function applySharedCode() {
+  const shared = sessionStorage.getItem('strudel-code');
+  if (!shared) return;
+  sessionStorage.removeItem('strudel-code');
+  const el = document.querySelector('strudel-editor');
+  if (el?.editor?.setCode) {
+    el.editor.setCode(shared);
+  } else {
+    // 컴포넌트가 아직 초기화 전이면 attribute로 지정 (attributeChangedCallback 처리)
+    el?.setAttribute('code', shared);
+  }
+}
+
 // 컴포넌트 초기화 후 버튼 연결
 const trySetup = setInterval(() => {
   const el = document.querySelector('strudel-editor');
@@ -29,6 +43,7 @@ const trySetup = setInterval(() => {
     clearInterval(trySetup);
     setupControls();
     setupVisualizer();
+    applySharedCode();
   }
 }, 200);
 setTimeout(() => clearInterval(trySetup), 15000); // 최대 15초 대기
