@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MIDI 변환 도구 - Strudel Music</title>
+    <title>MML 변환 도구 - Strudel Music</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
@@ -31,7 +31,7 @@
         color: #f5f5f5;
       }
       .brand span { color: #8a8a8a; font-weight: 400; }
-      nav { display: flex; gap: 0.5rem; }
+      nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
       .navBtn {
         font-family: inherit;
         font-size: 0.88rem;
@@ -49,10 +49,7 @@
         color: #0d0d0d;
         border-color: #f5f5f5;
       }
-      /* 페이지 전환 페이드 모션 */
-      body {
-        animation: pageIn 0.25s ease both;
-      }
+      body { animation: pageIn 0.25s ease both; }
       body.page-leaving {
         opacity: 0;
         transform: translateY(6px);
@@ -79,29 +76,7 @@
         width: 100%;
         max-width: 900px;
       }
-      /* 업로드 영역 */
-      #dropZone {
-        width: 100%;
-        max-width: 900px;
-        border: 1px dashed #3a3a3a;
-        border-radius: 4px;
-        padding: 4rem 2rem;
-        text-align: center;
-        cursor: pointer;
-        transition: border-color 0.2s, background 0.2s;
-        margin-bottom: 1rem;
-      }
-      #dropZone:hover, #dropZone.dragover {
-        border-color: #8a8a8a;
-        background: #141414;
-      }
-      #dropZone .icon { font-size: 2rem; margin-bottom: 0.8rem; }
-      #dropZone .main { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; }
-      #dropZone .desc { color: #8a8a8a; font-size: 0.9rem; }
-      #fileInput { display: none; }
-
-      /* 옵션 패널 */
-      .optionsPanel {
+      .panel {
         width: 100%;
         max-width: 900px;
         border: 1px solid #2a2a2a;
@@ -111,7 +86,7 @@
         margin-bottom: 1.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.4rem;
+        gap: 1.2rem;
       }
       .optGroup { display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; align-items: center; }
       .optTitle {
@@ -122,7 +97,7 @@
         color: #666;
         text-transform: uppercase;
       }
-      .optionsPanel label {
+      label {
         color: #b5b5b5;
         font-size: 0.9rem;
         display: flex;
@@ -130,8 +105,7 @@
         gap: 0.55rem;
         cursor: pointer;
       }
-      .optionsPanel label.inline { gap: 0.5rem; }
-      .optionsPanel input[type="number"], .optionsPanel input[type="text"] {
+      input[type="number"] {
         width: 5.5rem;
         background: #0d0d0d;
         border: 1px solid #2a2a2a;
@@ -141,14 +115,50 @@
         font-family: inherit;
         font-size: 0.9rem;
       }
-      .optionsPanel input[type="text"] { width: 10rem; font-family: "SF Mono", Menlo, monospace; }
-      .optionsPanel input[type="checkbox"] {
+      input[type="checkbox"] {
         width: 1rem;
         height: 1rem;
         accent-color: #f5f5f5;
         cursor: pointer;
       }
-      #convertBtn {
+      select {
+        background: #0d0d0d;
+        border: 1px solid #2a2a2a;
+        border-radius: 2px;
+        color: #f5f5f5;
+        padding: 0.45rem 0.65rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+      }
+      .trackSection { display: flex; flex-direction: column; gap: 0.8rem; }
+      .trackHeader {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .trackHeader .name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #c9c9c9;
+        min-width: 5rem;
+      }
+      textarea.mmlInput {
+        width: 100%;
+        min-height: 7rem;
+        background: #0d0d0d;
+        border: 1px solid #2a2a2a;
+        border-radius: 2px;
+        resize: vertical;
+        color: #c9e3c9;
+        font-family: "SF Mono", Menlo, monospace;
+        font-size: 0.78rem;
+        line-height: 1.6;
+        padding: 0.9rem;
+        outline: none;
+      }
+      textarea.mmlInput:focus { border-color: #555; }
+      button.primary {
         align-self: flex-start;
         font-family: inherit;
         font-size: 0.95rem;
@@ -161,9 +171,7 @@
         color: #0d0d0d;
         transition: opacity 0.15s;
       }
-      #convertBtn:hover { opacity: 0.85; }
-      #convertBtn:disabled { opacity: 0.35; cursor: not-allowed; }
-
+      button.primary:hover { opacity: 0.85; }
       /* 결과 */
       #resultWrap {
         width: 100%;
@@ -185,7 +193,7 @@
       }
       #resultCode {
         width: 100%;
-        height: 45vh;
+        height: 50vh;
         background: transparent;
         border: none;
         resize: none;
@@ -197,10 +205,14 @@
         outline: none;
         white-space: pre;
       }
-      #copyBtn {
+      .codeActions {
         position: absolute;
         top: 0.7rem;
         right: 0.7rem;
+        display: flex;
+        gap: 0.4rem;
+      }
+      .codeActions button {
         font-family: inherit;
         font-size: 0.8rem;
         padding: 0.45rem 1rem;
@@ -209,9 +221,9 @@
         border: 1px solid #3a3a3a;
         border-radius: 2px;
         cursor: pointer;
-        transition: color 0.15s;
+        transition: color 0.15s, border-color 0.15s;
       }
-      #copyBtn:hover { color: #f5f5f5; }
+      .codeActions button:hover { color: #f5f5f5; border-color: #6a6a6a; }
       footer {
         width: 100%;
         max-width: 900px;
@@ -221,98 +233,87 @@
         padding-top: 1.5rem;
       }
     </style>
-    <script type="module" crossorigin src="/strudel-music/assets/midi-CkZt8bYG.js"></script>
+    <script type="module" crossorigin src="/strudel-music/assets/mml-BkbS1p3y.js"></script>
     <link rel="modulepreload" crossorigin href="/strudel-music/assets/modulepreload-polyfill-B5Qt9EMX.js">
   </head>
   <body>
     <header>
-      <div class="brand">STRUDEL <span>MUSIC — MIDI 변환</span></div>
+      <div class="brand">STRUDEL <span>MUSIC — MML 변환</span></div>
       <nav>
         <a href="./index.html" class="navBtn">플레이어</a>
-        <a href="./midi.html" class="navBtn active">MIDI 변환</a>
+        <a href="./midi.html" class="navBtn">MIDI 변환</a>
         <a href="./mp3.html" class="navBtn">MP3 변환</a>
-        <a href="./mml.html" class="navBtn">MML 변환</a>
+        <a href="./mml.html" class="navBtn active">MML 변환</a>
       </nav>
     </header>
 
-    <h1>MIDI 파일을<br />Strudel 코드로 변환합니다.</h1>
+    <h1>MML 악보를<br />Strudel 코드로 변환합니다.</h1>
     <p class="sub">
-      .mid 파일을 올리면 트랙별 노트를 Strudel 패턴 코드로 바꿔줍니다.<br />
-      변환된 코드를 복사해서 플레이어 에디터에 붙여넣으면 바로 연주됩니다.
+      MML(Music Macro Language) 텍스트를 트랙별로 붙여넣으면 노트·화음을 분석해
+      Strudel 패턴 코드로 바꿔줍니다.<br />
+      생성된 코드를 복사해서 플레이어 에디터에 붙여넣으면 바로 연주됩니다.
     </p>
 
-    <!-- 업로드 -->
-    <div id="dropZone">
-      <div class="icon">🎵</div>
-      <div class="main">MIDI 파일을 끌어다 놓거나 클릭해서 선택</div>
-      <div class="desc">.mid / .midi 지원 · 파일은 브라우저에서만 처리됩니다 (업로드 없음)</div>
+    <!-- 옵션 -->
+    <div class="panel">
+      <div class="optGroup">
+        <div class="optTitle">설정</div>
+        <label title="원곡 BPM">
+          BPM
+          <input type="number" id="bpm" value="135" min="20" max="300" />
+        </label>
+        <label title="기본 음 길이 (4 = 4분음표)">
+          기본 길이 (L)
+          <select id="defaultLen">
+            <option value="1">1 온음표</option>
+            <option value="2">2 2분음표</option>
+            <option value="4" selected>4 4분음표</option>
+            <option value="8">8 8분음표</option>
+            <option value="16">16 16분음표</option>
+          </select>
+        </label>
+        <label title="멜로디 사운드">
+          멜로디 사운드
+          <input type="text" id="melodySound" value="sawtooth" style="width:8rem" />
+        </label>
+        <label title="화음 사운드">
+          화음 사운드
+          <input type="text" id="chordSound" value="triangle" style="width:8rem" />
+        </label>
+      </div>
     </div>
-    <input type="file" id="fileInput" accept=".mid,.midi" />
 
-    <!-- 옵션 + 변환 버튼 -->
-    <div class="optionsPanel">
-      <div class="optGroup">
-        <div class="optTitle">타이밍</div>
-        <label title="원곡의 박자당 사이클 길이. 4면 4/4박자">
-          사이클당 박자 수
-          <input type="number" id="beatsPerCycle" value="4" min="1" max="16" />
-        </label>
-        <label title="변환할 마디 수 제한. 0이면 전체 변환">
-          마디 제한
-          <input type="number" id="barLimit" value="0" min="0" max="999" />
-        </label>
-        <label title="원곡 BPM. 생성 코드의 setcpm에 반영됩니다">
-          원곡 BPM
-          <input type="number" id="bpm" value="120" min="20" max="300" />
-        </label>
+    <!-- 트랙 입력 -->
+    <div class="panel" id="tracksPanel">
+      <div class="trackSection" data-track="0">
+        <div class="trackHeader">
+          <span class="name">트랙 1 (멜로디)</span>
+          <label><input type="checkbox" class="useTrack" checked /> 사용</label>
+          <label>옥타브 이동
+            <input type="number" class="octShift" value="0" min="-4" max="4" style="width:4rem" />
+          </label>
+        </div>
+        <textarea class="mmlInput" spellcheck="false" placeholder="MML 텍스트를 붙여넣으세요"></textarea>
       </div>
-
-      <div class="optGroup">
-        <div class="optTitle">사운드</div>
-        <label title="MIDI 프로그램 번호에 맞는 General MIDI 악기로 지정합니다">
-          <input type="checkbox" id="useGM" checked />
-          MIDI 악기에 맞춰 사운드 지정
-        </label>
-        <label title="모든 멜로디 트랙에 같은 사운드를 사용합니다">
-          <input type="checkbox" id="singleSound" />
-          단일 사운드로 통일
-        </label>
-        <label class="inline" id="soundNameWrap" style="display:none">
-          사운드 이름
-          <input type="text" id="soundName" value="gm_epiano1" />
-        </label>
-      </div>
-
-      <div class="optGroup">
-        <div class="optTitle">출력 형태</div>
-        <label title="코드를 한 줄로 압축합니다. 긴 곡에 유용">
-          <input type="checkbox" id="singleLine" />
-          한 줄로 압축
-        </label>
-        <label title="쉼 없는 노트는 짧게, 긴 노트는 늘어나게 표시">
-          <input type="checkbox" id="useDurations" checked />
-          노트 길이 반영 (@ 표기)
-        </label>
-        <label title="벨로시티(세기)를 gain 값으로 반영">
-          <input type="checkbox" id="useVelocity" />
-          벨로시티 반영 (gain)
-        </label>
-      </div>
-
-      <button id="convertBtn" disabled>변환하기</button>
+      <button id="addTrackBtn" class="primary" style="background:#222;color:#c9c9c9;border:1px solid #3a3a3a">+ 트랙 추가</button>
+      <button id="convertBtn" class="primary">변환하기</button>
     </div>
 
     <!-- 결과 -->
     <div id="resultWrap">
       <p id="trackInfo"></p>
       <div class="codeBox">
-        <button id="copyBtn">복사</button>
+        <div class="codeActions">
+          <button id="openPlayerBtn">플레이어에서 열기</button>
+          <button id="copyBtn">복사</button>
+        </div>
         <textarea id="resultCode" readonly spellcheck="false"></textarea>
       </div>
     </div>
 
     <footer>
-      MIDI 파싱은 브라우저에서 직접 수행됩니다 · 생성된 코드는 자유롭게 수정 가능합니다.
+      MML 파싱은 브라우저에서 직접 수행됩니다 · 노트/쉼/옥타브/길이/화음(&) 지원 ·
+      코드 규칙은 <a href="https://strudel.cc/workshop/first-notes/" target="_blank" rel="noopener" style="color:#8a8a8a">Strudel 공식 문서</a>를 따릅니다.
     </footer>
 
     <script>
