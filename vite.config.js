@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: 'index.html',
         midi: 'midi.html',
+        mp3: 'mp3.html',
       },
     },
   },
