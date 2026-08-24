@@ -145,7 +145,7 @@
         padding-top: 1.5rem;
       }
     </style>
-    <script type="module" crossorigin src="/strudel-music/assets/main-D64n0lUJ.js"></script>
+    <script type="module" crossorigin src="/strudel-music/assets/main-DTK_hert.js"></script>
     <link rel="modulepreload" crossorigin href="/strudel-music/assets/modulepreload-polyfill-B5Qt9EMX.js">
   </head>
   <body>
@@ -157,6 +157,7 @@
       <nav>
         <a href="./index.html" class="navBtn active">플레이어</a>
         <a href="./midi.html" class="navBtn">MIDI 변환</a>
+        <a href="./mp3.html" class="navBtn">MP3 변환</a>
       </nav>
     </header>
 
@@ -176,20 +177,25 @@
     <div class="player">
       <strudel-editor>
         <!--
-setcpm(110/4) // BPM 110 (4비트/사이클)
+// ===== First Sounds 워크숍 스타일 트랩 비트 =====
+// 참고: https://strudel.cc/workshop/first-sounds/
 
-$: s("bd*4").bank("RolandTR909")            // 킥드럼
-$: s("~ sd").bank("RolandTR909").room(.3)   // 스네어
-$: s("hh*8").bank("RolandTR909").gain(.6)   // 하이햇
+setcpm(140/4) // cpm = cycles per minute → 4분음표 기준 BPM 140
 
-$: note("<c2 g2 a2 f2>/2")
-  .s("gm_acoustic_bass")                    // 베이스라인
+// --- 드럼: 공백으로 시퀀스, [] 서브시퀀스, ~ 쉼표, , 병렬 재생 ---
+sound(`
+[bd ~ ~ ~] [~ ~ ~ bd] [~ bd ~ ~] [~ ~ ~ ~],
+[~ ~ ~ ~] [~ ~ ~ ~] [~ ~ sd ~] [~ ~ ~ ~],
+hh*8, [~ oh]*2
+`).bank("RolandTR909")
 
-$: n("<0 1 2 3>*2")
-  .scale("C:minor")
-  .s("gm_lead_6_voice")
-  .room(1)
-  .lpf(2000)                                // 리드 멜로디
+// --- 햇 롤: * 로 속도업, : 대신 n() 으로 샘플 번호 선택 ---
+n("[0 0 0 0] [0 0 1 0] [0 0 0 1] [0 1 2 3]*2")
+  .sound("hh")
+  .bank("RolandTR808")
+
+// --- 크래시: <> 로 사이클당 하나씩 교대 ---
+sound("<cr - - ->").bank("RolandTR909")
 -->
       </strudel-editor>
     </div>
